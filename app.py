@@ -39,8 +39,15 @@ st.markdown("""
 
 # Título Estilizado
 st.markdown('<h1 class="titulo-principal"> Controle de Pagamentos - Coleta de Água</h1>', unsafe_allow_html=True)
-st.subheader("Controle de arrecadação da coleta de água dos Agentes da SMT. Por enquanto somente informações de quem arrecadou. Futuramente iremos colocar os gastos com água no mês.")
-st.subheader("LEMBRE DE FAZER O PIX NO QRCODE PERTO DO GALÂO")
+st.markdown("""
+    <p style="color: #2b2d42; font-size: 16px; text-align: center; margin-bottom: 25px;">
+    Controle de arrecadação da coleta de água dos Agentes da SMT. 
+    Por enquanto, somente informações de quem arrecadou. Futuramente iremos colocar os gastos com água no mês.
+    </p>
+    """, unsafe_allow_html=True)
+
+# O Aviso do PIX ganha um destaque visual nativo e colorido automaticamente
+st.warning("⚠️ **LEMBRE DE FAZER O PIX NO QRCODE PERTO DO GALÃO**")
 
 # 2. Conexão com o Banco de Dados
 conn = st.connection("postgresql", type="sql")
