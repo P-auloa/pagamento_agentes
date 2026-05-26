@@ -53,7 +53,7 @@ except Exception:
     df = None
 
 # --- RENDERIZAÇÃO DAS MÉTRICAS (VISUAL EM CARDS COLORED) ---
-if df is not null and not df.empty:
+if df is not None and not df.empty:
     # Cálculos
     total_pago = df[df['pago'] == True]['valor'].sum()
     pendentes = df[df['pago'] == False]['nome_agente'].count()
