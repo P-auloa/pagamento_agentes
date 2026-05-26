@@ -40,7 +40,7 @@ st.markdown("""
 # Título Estilizado
 st.markdown('<h1 class="titulo-principal"> Controle de Pagamentos - Coleta de Água</h1>', unsafe_allow_html=True)
 st.subheader("Controle de arrecadação da coleta de água dos Agentes da SMT. Por enquanto somente informações de quem arrecadou. Futuramente iremos colocar os gastos com água no mês.")
-st.suheader("LEMBRE DE FAZER O PIX NO QRCODE PERTO DO GALÂO")
+st.subheader("LEMBRE DE FAZER O PIX NO QRCODE PERTO DO GALÂO")
 
 # 2. Conexão com o Banco de Dados
 conn = st.connection("postgresql", type="sql")
