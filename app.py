@@ -40,7 +40,7 @@ st.markdown("""
 # Título Estilizado
 st.markdown('<h1 class="titulo-principal"> Controle de Pagamentos - Coleta de Água</h1>', unsafe_allow_html=True)
 st.markdown("""
-    <p style="color: #2b2d42; font-size: 16px; text-align: center; margin-bottom: 25px;">
+    <p style="color: #ffffff; font-size: 16px; text-align: center; margin-bottom: 25px;">
     Controle de arrecadação da coleta de água dos Agentes da SMT. 
     Por enquanto, somente informações de quem arrecadou. Futuramente iremos colocar os gastos com água no mês.
     </p>
@@ -74,7 +74,7 @@ if df is not None and not df.empty:
         st.markdown(
             f"""
             <div style="background-color: #e3f2fd; padding: 20px; border-radius: 10px; border-left: 6px solid #2196f3; box-shadow: 2px 2px 5px rgba(0,0,0,0.05);">
-                <p style="margin:0; font-size:12px; color:#1565c0; font-weight:bold; text-transform:uppercase;">Arrecadado no Mês</p>
+                <p style="margin:0; font-size:12px; color:#1565c0; font-weight:bold; text-transform:uppercase;">Arrecadado no Mês Corrente</p>
                 <h2 style="margin:0; color:#0d47a1;">R$ {total_pago:,.2f}</h2>
             </div>
             """, 
@@ -90,7 +90,7 @@ if df is not None and not df.empty:
         st.markdown(
             f"""
             <div style="background-color: {cor_fundo}; padding: 20px; border-radius: 10px; border-left: 6px solid {cor_borda}; box-shadow: 2px 2px 5px rgba(0,0,0,0.05);">
-                <p style="margin:0; font-size:12px; color:{cor_texto}; font-weight:bold; text-transform:uppercase;">Moradores Pendentes</p>
+                <p style="margin:0; font-size:12px; color:{cor_texto}; font-weight:bold; text-transform:uppercase;">Agentes Pendentes</p>
                 <h2 style="margin:0; color:{cor_texto};">{pendentes}</h2>
             </div>
             """, 
