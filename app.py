@@ -51,4 +51,4 @@ with st.form("formulario_pagamento", clear_on_submit=True):
             session.execute(query_insert, {"nome": nome, "mes": mes, "valor": valor, "pago": status_pago})
             session.commit()
         st.sucess(f"Pagamento de {nome} registrado com sucesso!")
-        st.return() #atualiza a tela
+        st.rerun()
