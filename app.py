@@ -3,7 +3,7 @@ import pandas as pd
 
 # 1. Configuração da página e Estilo Customizado
 st.set_page_config(
-    page_title="Controle de Água Interna", 
+    page_title=" AGTSMT - Controle de Água Mineral", 
     layout="wide", 
     initial_sidebar_state="collapsed"
 )
@@ -21,8 +21,10 @@ st.markdown("""
 st.markdown('<h1 class="titulo-principal">Controle de Pagamentos - Coleta de Água</h1>', unsafe_allow_html=True)
 st.markdown("""
     <p style="color: #2b2d42; font-size: 16px; text-align: center; margin-bottom: 20px;">
-    Controle de arrecadação da coleta de água dos Agentes da SMT. 
-    Por enquanto, somente informações de quem arrecadou. Futuramente iremos colocar os gastos com água no mês.
+    Controle de arrecadação da coleta de água dos Agentes da SMT. Verifique e lembre sua GU de fazer o pagamento. 
+    Por enquanto, somente informações de quem arrecadou.
+    Futuramente irei colocar os gastos com água no mês.
+    
     </p>
     """, unsafe_allow_html=True)
 
@@ -48,8 +50,8 @@ if not df_completo.empty:
     # Captura todos os meses únicos existentes no banco para gerar as opções do filtro
     meses_disponiveis = sorted(df_completo['mes_referencia'].unique())
     
-    st.subheader("🔍 Filtrar Visualização")
-    mes_selecionado = st.selectbox("Selecione o Mês que deseja analisar:", meses_disponiveis)
+    st.subheader("Estou devendo esse mês?")
+    mes_selecionado = st.selectbox("Selecione o Mês que deseja ver:", meses_disponiveis)
     
     # Filtrando o DataFrame baseado na escolha do usuário
     df_filtrado = df_completo[df_completo['mes_referencia'] == mes_selecionado]
@@ -62,7 +64,7 @@ if not df_completo.empty:
     with m1:
         st.markdown(f"""
             <div style="background-color: #e3f2fd; padding: 20px; border-radius: 10px; border-left: 6px solid #2196f3; box-shadow: 2px 2px 5px rgba(0,0,0,0.05);">
-                <p style="margin:0; font-size:12px; color:#1565c0; font-weight:bold; text-transform:uppercase;">Arrecadado em {mes_selecionado}</p>
+                <p style="margin:0; font-size:12px; color:#1565c0; font-weight:bold; text-transform:uppercase;"> Total arrecadado em {mes_selecionado}</p>
                 <h2 style="margin:0; color:#0d47a1;">R$ {total_pago:,.2f}</h2>
             </div>
             """, unsafe_allow_html=True)
@@ -73,7 +75,7 @@ if not df_completo.empty:
         cor_texto = "#2e7d32" if pendentes == 0 else "#e65100"
         st.markdown(f"""
             <div style="background-color: {cor_fundo}; padding: 20px; border-radius: 10px; border-left: 6px solid {cor_borda}; box-shadow: 2px 2px 5px rgba(0,0,0,0.05);">
-                <p style="margin:0; font-size:12px; color:{cor_texto}; font-weight:bold; text-transform:uppercase;">Agentes Pendentes ({mes_selecionado})</p>
+                <p style="margin:0; font-size:12px; color:{cor_texto}; font-weight:bold; text-transform:uppercase;">Agentes Pendentes em ({mes_selecionado})</p>
                 <h2 style="margin:0; color:{cor_texto};">{pendentes}</h2>
             </div>
             """, unsafe_allow_html=True)
@@ -81,7 +83,8 @@ if not df_completo.empty:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # --- EXIBIÇÃO DA TABELA (APENAS AS COLUNAS SOLICITADAS) ---
-    st.subheader(f"📋 Lista de Recebimentos — {mes_selecionado}")
+    st.subheader(f"Quem ta em dia e quem ta inadimplente — {mes_selecionado}")
+    st.subheader(f"Verde ta pago - Vermelho ta devendo")
     
     # Mapeamento exato das colunas que você quer exibir (Garante a ordem e o filtro das colunas)
     # Nota: Certifique-se de que o nome da coluna de status no seu banco seja exatamente 'status'
@@ -90,19 +93,27 @@ if not df_completo.empty:
     df_tabela = df_filtrado[colunas_exibicao].copy()
     
     # Renomeando os cabeçalhos para ficar amigável no site
-    df_tabela.columns = ['Nome do Agente', 'Mês de Referência', 'Situação do Agente', 'Status de Pagamento']
+    df_tabela.columns = ['Agente', 'Mês', 'Situação do Agente', 'Pagamento']
     
     def colorir_status(val):
         color = '#c8e6c9' if val == True else '#ffcdd2'
         return f'background-color: {color}'
         
     st.dataframe(
-        df_tabela.style.map(colorir_status, subset=['Status de Pagamento']),
+        df_tabela.style.map(colorir_status, subset=['Pagamento']),
         use_container_width=True,
         hide_index=True
     )
 else:
     st.info("Nenhum registro encontrado no banco de dados.")
+
+st.markdown("""
+    <p style="color: #2b2d42; font-size: 12px; text-align: center; margin-bottom: 20px;">
+    Qualquer erro, ausência de pagamentos ou situação especial: lembre o ANDRADE de atualizar o registro.
+    Sou humano e esqueço das coisas kkkkkk
+    
+    </p>
+    """, unsafe_allow_html=True)
 
 # --- ÁREA DO ADMINISTRADOR (ATUALIZAÇÃO DE REGISTROS) ---
 parametros = st.query_params
