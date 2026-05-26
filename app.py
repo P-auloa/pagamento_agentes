@@ -12,7 +12,7 @@ st.markdown("""
     <style>
     /* Cor de fundo do app */
     .stApp {
-       background-color: #ecf2f9;  /* Azul muito claro, com mais definição */
+       background-color: #f0f4f8;  /* Cinza azulado moderado */
     }
     /* Estilização dos blocos de métricas (Cards) */
     div[data-testid="stMetricValue"] {
