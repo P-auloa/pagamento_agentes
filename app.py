@@ -133,9 +133,9 @@ if not df_completo.empty:
     df_tabela.columns = ['Agente', 'Mês', 'Situação do Agente', 'Pagamento']
     
     def colorir_status(val):
-    # Tons pastéis escuros: Verde escuro para pago, Vermelho escuro para pendente
-    color = '#1b4d3e' if val == True else '#4a1515'
-    return f'background-color: {color}; color: #ffffff;'
+         # Tons pastéis escuros: Verde escuro para pago, Vermelho escuro para pendente
+        color = '#1b4d3e' if val == True else '#4a1515'
+        return f'background-color: {color}; color: #ffffff;'
         
     st.dataframe(
         df_tabela.style.map(colorir_status, subset=['Pagamento']),
