@@ -8,14 +8,48 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# Injeção de CSS para Tema Escuro de Alto Contraste
 st.markdown("""
     <style>
-    .stApp { background-color: #f4f7f6; }
-    div[data-testid="stMetricValue"] { font-size: 28px; color: #0077b6; font-weight: bold; }
-    div[data-testid="stMetricLabel"] { font-size: 14px; color: #4a4a4a; text-transform: uppercase; letter-spacing: 1px; }
-    .titulo-principal { color: #03045e; font-family: 'Helvetica Neue', sans-serif; font-weight: 800; text-align: center; padding-bottom: 5px; }
+    /* Forçar o fundo escuro do aplicativo */
+    .stApp {
+        background-color: #0e1117 !important;
+        color: #ffffff !important;
+    }
+    
+    /* Garantir que textos e títulos fiquem claros */
+    h1, h2, h3, p, span {
+        color: #ffffff !important;
+    }
+
+    /* Card Pago: Fundo grafite, borda azul neon e sombra brilhante */
+    .metric-card-pago {
+        background-color: #1f2937 !important; 
+        padding: 20px; 
+        border-radius: 10px; 
+        border-left: 8px solid #00b4d8; 
+        box-shadow: 0px 4px 15px rgba(0, 180, 216, 0.25);
+    }
+    
+    /* Card Pendente: Fundo grafite, borda laranja/vermelha e sombra quente */
+    .metric-card-pendente {
+        background-color: #1f2937 !important; 
+        padding: 20px; 
+        border-radius: 10px; 
+        border-left: 8px solid #ff4b4b; 
+        box-shadow: 0px 4px 15px rgba(255, 75, 75, 0.25);
+    }
+    
+    .titulo-principal {
+        color: #00b4d8;
+        font-family: 'Helvetica Neue', sans-serif;
+        font-weight: 800;
+        text-align: center;
+        padding-bottom: 20px;
+    }
     </style>
     """, unsafe_allow_html=True)
+
 
 # Título e Subtítulos Estilizados
 st.markdown('<h1 class="titulo-principal">Controle de Pagamentos - Coleta de Água</h1>', unsafe_allow_html=True)
@@ -62,23 +96,26 @@ if not df_completo.empty:
     
     m1, m2 = st.columns(2)
     with m1:
-        st.markdown(f"""
-            <div style="background-color: #e3f2fd; padding: 20px; border-radius: 10px; border-left: 6px solid #2196f3; box-shadow: 2px 2px 5px rgba(0,0,0,0.05);">
-                <p style="margin:0; font-size:12px; color:#1565c0; font-weight:bold; text-transform:uppercase;"> Total arrecadado em {mes_selecionado}</p>
-                <h2 style="margin:0; color:#0d47a1;">R$ {total_pago:,.2f}</h2>
+        st.markdown(
+            f"""
+            <div class="metric-card-pago">
+                <p style="margin:0; font-size:13px; color:#00b4d8; font-weight:bold; text-transform:uppercase;">Arrecadado no Mês</p>
+                <h2 style="margin:0; color:#ffffff; font-size:32px;">R$ {total_pago:,.2f}</h2>
             </div>
-            """, unsafe_allow_html=True)
+            """, 
+            unsafe_allow_html=True
+        )
         
     with m2:
-        cor_fundo = "#e8f5e9" if pendentes == 0 else "#fff3e0"
-        cor_borda = "#4caf50" if pendentes == 0 else "#ff9800"
-        cor_texto = "#2e7d32" if pendentes == 0 else "#e65100"
-        st.markdown(f"""
-            <div style="background-color: {cor_fundo}; padding: 20px; border-radius: 10px; border-left: 6px solid {cor_borda}; box-shadow: 2px 2px 5px rgba(0,0,0,0.05);">
-                <p style="margin:0; font-size:12px; color:{cor_texto}; font-weight:bold; text-transform:uppercase;">Agentes Pendentes em ({mes_selecionado})</p>
-                <h2 style="margin:0; color:{cor_texto};">{pendentes}</h2>
+        st.markdown(
+            f"""
+            <div class="metric-card-pendente">
+                <p style="margin:0; font-size:13px; color:#ff4b4b; font-weight:bold; text-transform:uppercase;">Moradores Pendentes</p>
+                <h2 style="margin:0; color:#ffffff; font-size:32px;">{pendentes}</h2>
             </div>
-            """, unsafe_allow_html=True)
+            """, 
+            unsafe_allow_html=True
+        )
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -96,8 +133,9 @@ if not df_completo.empty:
     df_tabela.columns = ['Agente', 'Mês', 'Situação do Agente', 'Pagamento']
     
     def colorir_status(val):
-        color = '#c8e6c9' if val == True else '#ffcdd2'
-        return f'background-color: {color}'
+    # Tons pastéis escuros: Verde escuro para pago, Vermelho escuro para pendente
+    color = '#1b4d3e' if val == True else '#4a1515'
+    return f'background-color: {color}; color: #ffffff;'
         
     st.dataframe(
         df_tabela.style.map(colorir_status, subset=['Pagamento']),
