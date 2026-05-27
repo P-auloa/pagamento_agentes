@@ -19,7 +19,7 @@ st.markdown("""
     
     /* Garantir que textos e títulos fiquem claros */
     h1, h2, h3, p, span {
-        color: #ffffff !important;
+        color: #f0ffff !important;
     }
 
     /* Card Pago: Fundo grafite, borda azul neon e sombra brilhante */
@@ -58,7 +58,7 @@ st.markdown("""
     Controle de arrecadação da coleta de água dos Agentes da SMT. Verifique e lembre sua GU de fazer o pagamento. 
     Por enquanto, somente informações de quem arrecadou.
     Futuramente irei colocar os gastos com água no mês.
-    
+    Para fazer o pagamento a chave pix é: paulopvla@hotmail.com
     </p>
     """, unsafe_allow_html=True)
 
@@ -110,7 +110,7 @@ if not df_completo.empty:
         st.markdown(
             f"""
             <div class="metric-card-pendente">
-                <p style="margin:0; font-size:13px; color:#ff4b4b; font-weight:bold; text-transform:uppercase;">Moradores Pendentes</p>
+                <p style="margin:0; font-size:13px; color:#ff4b4b; font-weight:bold; text-transform:uppercase;">Quantidade de Agentes Pendentes</p>
                 <h2 style="margin:0; color:#ffffff; font-size:32px;">{pendentes}</h2>
             </div>
             """, 
@@ -120,16 +120,16 @@ if not df_completo.empty:
     st.markdown("<br>", unsafe_allow_html=True)
 
     # --- EXIBIÇÃO DA TABELA (APENAS AS COLUNAS SOLICITADAS) ---
-    st.subheader(f"Quem ta em dia e quem ta inadimplente — {mes_selecionado}")
-    st.subheader(f"Verde ta pago - Vermelho ta devendo")
+    st.subheader(f"Lista dos Adimplentes — {mes_selecionado}")
+    st.subheader(f"Verde: PAGOU")
+    st.subheader(f"Vermelho: NÃO PAGOU")
     
-    # Mapeamento exato das colunas que você quer exibir (Garante a ordem e o filtro das colunas)
-    # Nota: Certifique-se de que o nome da coluna de status no seu banco seja exatamente 'status'
+    # Exibição das colunas Nome, Mês, Situação e Pago
     colunas_exibicao = ['nome_agente', 'mes_referencia', 'status', 'pago']
     
     df_tabela = df_filtrado[colunas_exibicao].copy()
     
-    # Renomeando os cabeçalhos para ficar amigável no site
+    # Renomeando os cabeçalhos para ficar amigável
     df_tabela.columns = ['Agente', 'Mês', 'Situação do Agente', 'Pagamento']
     
     def colorir_status(val):
@@ -147,7 +147,7 @@ else:
 
 st.markdown("""
     <p style="color: #2b2d42; font-size: 12px; text-align: center; margin-bottom: 20px;">
-    Qualquer erro, ausência de pagamentos ou situação especial: lembre o ANDRADE de atualizar o registro.
+    Qualquer erro, ausência de pagamentos ou situação especial: por favor, informe o ANDRADE para atualizar o registro.
     Sou humano e esqueço das coisas kkkkkk
     
     </p>
