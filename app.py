@@ -56,9 +56,8 @@ st.markdown('<h1 class="titulo-principal">Controle de Pagamentos - Coleta de Ág
 st.markdown("""
     <p style="color: #2b2d42; font-size: 16px; text-align: center; margin-bottom: 20px;">
     Controle de arrecadação da coleta de água dos Agentes da SMT. Verifique e lembre sua GU de fazer o pagamento. 
-    Por enquanto, somente informações de quem arrecadou.
-    Futuramente irei colocar os gastos com água no mês.
-    Para fazer o pagamento a chave pix é: paulopvla@hotmail.com
+    Por enquanto, somente informações de quem e quanto foi arrecdado.
+    Futuramente teremos os gastos com água no mês.
     </p>
     """, unsafe_allow_html=True)
 
