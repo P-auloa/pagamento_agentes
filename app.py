@@ -188,7 +188,6 @@ if "admin" in parametros and parametros["admin"] == "true":
                 key="mes_update"
             )
             
-
         with col3:
             novo_valor = st.number_input(
                 "Valor",
