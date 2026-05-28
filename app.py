@@ -257,7 +257,7 @@ if "admin" in parametros and parametros["admin"] == "true":
                         query_insert,
                         {
                             "nome": novo_agente,
-                            "mes": novo_mes,
+                            "mes": mes_sel,
                             "valor": novo_valor,
                             "pago": novo_pago,
                             "status": novo_status
