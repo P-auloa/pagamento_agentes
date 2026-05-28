@@ -192,13 +192,13 @@ if "admin" in parametros and parametros["admin"] == "true":
             novo_valor = st.number_input(
                 "Valor",
                 min_value=10.0,
-                step=10.0
+                step=1.0
             )
 
         with col4:
             novo_status = st.selectbox(
                 "Situação",
-                ["NORMAL", "FERIAS", "LICENSA"]
+                ["NORMAL", "FERIAS", "LICENÇA"]
             )
 
         with col5:
