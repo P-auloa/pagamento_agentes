@@ -203,7 +203,8 @@ if "admin" in parametros and parametros["admin"] == "true":
             )
 
         with col5:
-            novo_pago = st.checkbox("Pagamento Confirmado")
+            novo_pago = st.toggle("Pagamento Confirmado")
+            st.caption("✅ PAGO" if novo_pago else "❌ NÃO PAGO")
 
         botao_salvar_novo = st.form_submit_button("Salvar Novo Registro")
 
@@ -314,10 +315,11 @@ if "admin" in parametros and parametros["admin"] == "true":
 
             with st.form("form_update_pagamento"):
 
-                novo_pagamento = st.checkbox(
+                novo_pagamento = st.toggle(
                     "Pagamento Confirmado",
                     value=pago_atual
                 )
+                st.caption("✅ PAGO" if novo_pago else "❌ NÃO PAGO")
 
                 botao_update = st.form_submit_button(
                     "Atualizar Pagamento"
