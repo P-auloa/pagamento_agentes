@@ -187,6 +187,8 @@ if "admin" in parametros and parametros["admin"] == "true":
                 lista_meses,
                 key="mes_update"
             )
+
+        col3, col4, col5 = st.columns(3)
             
         with col3:
             novo_valor = st.number_input(
