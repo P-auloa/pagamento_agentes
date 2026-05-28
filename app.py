@@ -3,7 +3,7 @@ import pandas as pd
 
 # 1. Configuração da página e Estilo Customizado
 st.set_page_config(
-    page_title=" AGTSMT - Controle de Água Mineral", 
+    page_title="AGTSMT - Controle de Água Mineral", 
     layout="wide", 
     initial_sidebar_state="collapsed"
 )
@@ -51,12 +51,12 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 
-# Título e Subtítulos Estilizados
+# Título e Subtítulos Estilizados (CORREÇÃO: alterado a cor do texto do parágrafo para clara #f0ffff)
 st.markdown('<h1 class="titulo-principal">Controle de Pagamentos - Coleta de Água</h1>', unsafe_allow_html=True)
 st.markdown("""
-    <p style="color: #2b2d42; font-size: 16px; text-align: center; margin-bottom: 20px;">
-    Controle de arrecadação da coleta de água dos Agentes da SMT. Verifique e lembre sua GU de fazer o pagamento. 
-    Por enquanto, somente informações de quem e quanto foi arrecdado.
+    <p style="color: #f0ffff; font-size: 16px; text-align: center; margin-bottom: 20px;">
+    Controle de arrecadação da coleta de água dos Agentes da SMT. Verifique e lembre sua GU de fazer o pagamento. <br>
+    Por enquanto, somente informações de quem e quanto foi arrecadado.
     Futuramente teremos os gastos com água no mês.
     </p>
     """, unsafe_allow_html=True)
@@ -68,7 +68,6 @@ st.divider()
 conn = st.connection("postgresql", type="sql")
 
 def buscar_dados():
-    # Busca todas as informações para podermos tratar os filtros no Python
     return conn.query("SELECT * FROM pagamentos_agua ORDER BY nome_agente;", ttl="0")
 
 try:
@@ -80,16 +79,14 @@ except Exception as e:
 if not df_completo.empty:
     
     # --- CAMADA DE FILTRAGEM POR MÊS ---
-    # Captura todos os meses únicos existentes no banco para gerar as opções do filtro
     meses_disponiveis = sorted(df_completo['mes_referencia'].unique())
     
     st.subheader("Estou devendo esse mês?")
-    mes_selecionado = st.selectbox("Selecione o Mês que deseja ver:", meses_disponiveis)
+    mes_selecionado = st.selectbox("Selecione o Mês que deseja ver:", meses_disponiveis, key="filtro_mes_usuario")
     
-    # Filtrando o DataFrame baseado na escolha do usuário
     df_filtrado = df_completo[df_completo['mes_referencia'] == mes_selecionado]
 
-    # --- RENDERIZAÇÃO DAS MÉTRICAS (BASEADO NO MÊS FILTRADO) ---
+    # --- RENDERIZAÇÃO DAS MÉTRICAS ---
     total_pago = df_filtrado[df_filtrado['pago'] == True]['valor'].sum()
     pendentes = df_filtrado[df_filtrado['pago'] == False]['nome_agente'].count()
     
@@ -118,21 +115,15 @@ if not df_completo.empty:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # --- EXIBIÇÃO DA TABELA (APENAS AS COLUNAS SOLICITADAS) ---
+    # --- EXIBIÇÃO DA TABELA ---
     st.subheader(f"Lista dos Adimplentes — {mes_selecionado}")
-    st.subheader(f"Verde: PAGOU")
-    st.subheader(f"Vermelho: NÃO PAGOU")
+    st.caption("🟢 Verde: PAGOU  |  🔴 Vermelho: NÃO PAGOU")
     
-    # Exibição das colunas Nome, Mês, Situação e Pago
     colunas_exibicao = ['nome_agente', 'mes_referencia', 'status', 'pago']
-    
     df_tabela = df_filtrado[colunas_exibicao].copy()
-    
-    # Renomeando os cabeçalhos para ficar amigável
     df_tabela.columns = ['Agente', 'Mês', 'Situação do Agente', 'Pagamento']
     
     def colorir_status(val):
-         # Tons pastéis escuros: Verde escuro para pago, Vermelho escuro para pendente
         color = '#1b4d3e' if val == True else '#4a1515'
         return f'background-color: {color}; color: #ffffff;'
         
@@ -145,48 +136,56 @@ else:
     st.info("Nenhum registro encontrado no banco de dados.")
 
 st.markdown("""
-    <p style="color: #2b2d42; font-size: 12px; text-align: center; margin-bottom: 20px;">
-    Qualquer erro, ausência de pagamentos ou situação especial: por favor, informe o ANDRADE para atualizar o registro.
+    <p style="color: #f0ffff; font-size: 12px; text-align: center; margin-top: 30px;">
+    Qualquer erro, ausência de pagamentos ou situação especial: por favor, informe o ANDRADE para atualizar o registro. <br>
     Sou humano e esqueço das coisas kkkkkk
-    
     </p>
     """, unsafe_allow_html=True)
 
-# --- ÁREA DO ADMINISTRADOR (ATUALIZAÇÃO DE REGISTROS) ---
+
+# --- ÁREA DO ADMINISTRADOR (CORRIGIDA) ---
 parametros = st.query_params
 
 if "admin" in parametros and parametros["admin"] == "true" and not df_completo.empty:
     st.divider()
-    st.markdown('<h3 style="color: #e65100;">🛠️ Área do Administrador — Atualizar Cadastro / Pagamento</h3>', unsafe_allow_html=True)
+    st.markdown('<h3 style="color: #ffb703;">🛠️ Área do Administrador — Atualizar Cadastro / Pagamento</h3>', unsafe_allow_html=True)
     
-    with st.form("formulario_admin", clear_on_submit=False):
-        col_A, col_B, col_C, col_D = st.columns(4)
+    # INTERFACE MELHORADA: Seleção fora do formulário evita bugs de retenção de estado no checkbox
+    col_sel_A, col_sel_B = st.columns(2)
+    with col_sel_A:
+        lista_agentes = sorted(df_completo['nome_agente'].unique())
+        agente_sel = st.selectbox("1. Escolha o Agente que quer alterar:", lista_agentes)
+    with col_sel_B:
+        lista_meses_form = sorted(df_completo['mes_referencia'].unique())
+        mes_sel = st.selectbox("2. Escolha o Mês correspondente:", lista_meses_form)
         
-        with col_A:
-            # Pega a lista de agentes cadastrados para virar um campo de seleção
-            lista_agentes = sorted(df_completo['nome_agente'].unique())
-            agente_sel = st.selectbox("Selecione o Agente:", lista_agentes)
+    # Busca a situação em tempo real do banco para este agente selecionado
+    registro_atual = df_completo[(df_completo['nome_agente'] == agente_sel) & (df_completo['mes_referencia'] == mes_sel)]
+    
+    # Define os padrões dinâmicos baseados no que está atualmente salvo no banco
+    pago_padrao = bool(registro_atual['pago'].values[0]) if not registro_atual.empty else False
+    status_padrao = str(registro_atual['status'].values[0]) if not registro_atual.empty else "Normal"
+    
+    # Lista de opções de status para mapear o índice padrão correto
+    opcoes_status = ["Normal", "Férias", "Licença"]
+    idx_status = opcoes_status.index(status_padrao) if status_padrao in opcoes_status else 0
+
+    # Início do formulário de salvamento definitivo
+    with st.form("formulario_admin"):
+        st.markdown(f"**Modificando:** {agente_sel} ({mes_sel})")
+        col_dados_A, col_dados_B = st.columns(2)
+        
+        with col_dados_A:
+            # Dropdown para o Admin alterar a Situação do Agente
+            situacao_atual = st.selectbox("Alterar Situação do Agente:", opcoes_status, index=idx_status)
             
-        with col_B:
-            # Seleciona qual mês você quer alterar o registro daquele agente
-            lista_meses_form = sorted(df_completo['mes_referencia'].unique())
-            mes_sel = st.selectbox("Mês de Referência:", lista_meses_form)
+        with col_dados_B:
+            # O CHECKBOX QUE PERMITE O ADMIN ALTERAR A COLUNA 'PAGO'
+            status_pago = st.checkbox("Pagamento Confirmado (Marque para PAGO / Desmarque para PENDENTE)", value=pago_padrao)
             
-        with col_C:
-            # Permite alterar a situação do agente (Férias, Normal, Licença)
-            situacao_atual = st.selectbox("Situação Atual do Agente:", ["Normal", "Férias", "Licença"])
-            
-        with col_D:
-            # Lê o estado atual do banco para já vir marcado ou não (Melhoria de usabilidade)
-            registro_atual = df_completo[(df_completo['nome_agente'] == agente_sel) & (df_completo['mes_referencia'] == mes_sel)]
-            pago_padrao = bool(registro_atual['pago'].values[0]) if not registro_atual.empty else False
-            
-            status_pago = st.checkbox("Pagamento Confirmado", value=pago_padrao)
-            
-        botao_atualizar = st.form_submit_button("Salvar Alterações")
+        botao_atualizar = st.form_submit_button("Salvar Alterações no Banco de Dados")
         
         if botao_atualizar:
-            # Comando UPDATE para modificar a linha existente baseando-se no Agente e no Mês selecionados
             query_update = """
                 UPDATE pagamentos_agua 
                 SET pago = :pago, status = :status
@@ -200,5 +199,5 @@ if "admin" in parametros and parametros["admin"] == "true" and not df_completo.e
                     "mes": mes_sel
                 })
                 session.commit()
-            st.success(f"Dados do agente {agente_sel} atualizados com sucesso para o mês {mes_sel}!")
+            st.success(f"Dados do agente {agente_sel} atualizados com sucesso!")
             st.rerun()
