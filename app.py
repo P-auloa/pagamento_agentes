@@ -185,7 +185,7 @@ if "admin" in parametros and parametros["admin"] == "true":
             mes_sel = st.selectbox(
                 "Escolha o mês:",
                 lista_meses,
-                key="mes_update"
+                key="mes_referencia"
             )
 
         col3, col4, col5 = st.columns(3)
