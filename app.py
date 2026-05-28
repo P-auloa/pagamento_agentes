@@ -223,7 +223,7 @@ if "admin" in parametros and parametros["admin"] == "true":
                     query_verifica,
                     {
                         "nome": novo_agente,
-                        "mes": novo_mes
+                        "mes": mes_sel
                     }
                 ).scalar()
 
