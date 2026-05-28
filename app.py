@@ -143,14 +143,14 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 
-# --- ÁREA DO ADMINISTRADOR (CORRIGIDA) ---
+# --- ÁREA DO ADMINISTRADOR (CORRIGIDA E ATUALIZADA) ---
 parametros = st.query_params
 
 if "admin" in parametros and parametros["admin"] == "true" and not df_completo.empty:
     st.divider()
     st.markdown('<h3 style="color: #ffb703;">🛠️ Área do Administrador — Atualizar Cadastro / Pagamento</h3>', unsafe_allow_html=True)
     
-    # INTERFACE MELHORADA: Seleção fora do formulário evita bugs de retenção de estado no checkbox
+    # Interface de Seleção
     col_sel_A, col_sel_B = st.columns(2)
     with col_sel_A:
         lista_agentes = sorted(df_completo['nome_agente'].unique())
@@ -159,45 +159,49 @@ if "admin" in parametros and parametros["admin"] == "true" and not df_completo.e
         lista_meses_form = sorted(df_completo['mes_referencia'].unique())
         mes_sel = st.selectbox("2. Escolha o Mês correspondente:", lista_meses_form)
         
-    # Busca a situação em tempo real do banco para este agente selecionado
+    # Busca a situação em tempo real do banco
     registro_atual = df_completo[(df_completo['nome_agente'] == agente_sel) & (df_completo['mes_referencia'] == mes_sel)]
     
-    # Define os padrões dinâmicos baseados no que está atualmente salvo no banco
+    # Valores padrões estáveis
     pago_padrao = bool(registro_atual['pago'].values[0]) if not registro_atual.empty else False
     status_padrao = str(registro_atual['status'].values[0]) if not registro_atual.empty else "Normal"
     
-    # Lista de opções de status para mapear o índice padrão correto
     opcoes_status = ["Normal", "Férias", "Licença"]
     idx_status = opcoes_status.index(status_padrao) if status_padrao in opcoes_status else 0
 
-    # Início do formulário de salvamento definitivo
+    # Início do formulário
     with st.form("formulario_admin"):
         st.markdown(f"**Modificando:** {agente_sel} ({mes_sel})")
         col_dados_A, col_dados_B = st.columns(2)
         
         with col_dados_A:
-            # Dropdown para o Admin alterar a Situação do Agente
             situacao_atual = st.selectbox("Alterar Situação do Agente:", opcoes_status, index=idx_status)
             
         with col_dados_B:
-            # O CHECKBOX QUE PERMITE O ADMIN ALTERAR A COLUNA 'PAGO'
             status_pago = st.checkbox("Pagamento Confirmado (Marque para PAGO / Desmarque para PENDENTE)", value=pago_padrao)
             
         botao_atualizar = st.form_submit_button("Salvar Alterações no Banco de Dados")
         
         if botao_atualizar:
+            # CORREÇÃO CRÍTICA: Importação local do componente de texto puro do SQLAlchemy
+            from sqlalchemy import text
+            
+            # String SQL limpa
             query_update = """
                 UPDATE pagamentos_agua 
                 SET pago = :pago, status = :status
                 WHERE nome_agente = :nome AND mes_referencia = :mes;
             """
+            
+            # Executando o commit envelopado em text() para garantir conformidade com o driver
             with conn.session as session:
-                session.execute(query_update, {
+                session.execute(text(query_update), {
                     "pago": status_pago, 
                     "status": situacao_atual, 
                     "nome": agente_sel, 
                     "mes": mes_sel
                 })
                 session.commit()
+                
             st.success(f"Dados do agente {agente_sel} atualizados com sucesso!")
-            st.rerun()
+            st.author_binder = st.rerun()
