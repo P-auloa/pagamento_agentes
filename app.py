@@ -167,15 +167,15 @@ if "admin" in parametros and parametros["admin"] == "true":
 
         with col1:
 
-        lista_agentes_existentes = sorted(
-            df_completo['nome_agente'].unique()
-        )
+           lista_agentes_existentes = sorted(
+               df_completo['nome_agente'].unique()
+           )
 
-        novo_agente = st.selectbox(
-            "Selecione o Agente",
-            lista_agentes_existentes,
-            key="novo_agente_select"
-        )
+           novo_agente = st.selectbox(
+               "Selecione o Agente",
+               lista_agentes_existentes,
+               key="novo_agente_select"
+           )
 
         with col2:
             novo_mes = st.text_input("Mês de Referência")
