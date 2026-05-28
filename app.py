@@ -178,21 +178,28 @@ if "admin" in parametros and parametros["admin"] == "true":
            )
 
         with col2:
-            novo_mes = st.text_input("Mês de Referência")
+            lista_meses = sorted(
+                df_completo['mes_referencia'].unique()
+            )
 
-        col3, col4, col5 = st.columns(3)
+            mes_sel = st.selectbox(
+                "Escolha o mês:",
+                lista_meses,
+                key="mes_update"
+            )
+            
 
         with col3:
             novo_valor = st.number_input(
                 "Valor",
-                min_value=0.0,
-                step=1.0
+                min_value=10.0,
+                step=10.0
             )
 
         with col4:
             novo_status = st.selectbox(
                 "Situação",
-                ["Normal", "Férias", "Licença"]
+                ["NORMAL", "FERIAS", "LICENSA"]
             )
 
         with col5:
