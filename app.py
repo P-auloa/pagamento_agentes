@@ -143,65 +143,197 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 
-# --- ÁREA DO ADMINISTRADOR (CORRIGIDA E ATUALIZADA) ---
+# --- ÁREA DO ADMINISTRADOR (NOVA VERSÃO) ---
 parametros = st.query_params
 
-if "admin" in parametros and parametros["admin"] == "true" and not df_completo.empty:
+if "admin" in parametros and parametros["admin"] == "true":
     st.divider()
-    st.markdown('<h3 style="color: #ffb703;">🛠️ Área do Administrador — Atualizar Cadastro / Pagamento</h3>', unsafe_allow_html=True)
-    
-    # Interface de Seleção
-    col_sel_A, col_sel_B = st.columns(2)
-    with col_sel_A:
-        lista_agentes = sorted(df_completo['nome_agente'].unique())
-        agente_sel = st.selectbox("1. Escolha o Agente que quer alterar:", lista_agentes)
-    with col_sel_B:
-        lista_meses_form = sorted(df_completo['mes_referencia'].unique())
-        mes_sel = st.selectbox("2. Escolha o Mês correspondente:", lista_meses_form)
-        
-    # Busca a situação em tempo real do banco
-    registro_atual = df_completo[(df_completo['nome_agente'] == agente_sel) & (df_completo['mes_referencia'] == mes_sel)]
-    
-    # Valores padrões estáveis
-    pago_padrao = bool(registro_atual['pago'].values[0]) if not registro_atual.empty else False
-    status_padrao = str(registro_atual['status'].values[0]) if not registro_atual.empty else "Normal"
-    
-    opcoes_status = ["Normal", "Férias", "Licença"]
-    idx_status = opcoes_status.index(status_padrao) if status_padrao in opcoes_status else 0
+    st.markdown(
+        '<h3 style="color: #ffb703;">🛠️ Área do Administrador</h3>',
+        unsafe_allow_html=True
+    )
 
-    # Início do formulário
-    with st.form("formulario_admin"):
-        st.markdown(f"**Modificando:** {agente_sel} ({mes_sel})")
-        col_dados_A, col_dados_B = st.columns(2)
-        
-        with col_dados_A:
-            situacao_atual = st.selectbox("Alterar Situação do Agente:", opcoes_status, index=idx_status)
-            
-        with col_dados_B:
-            status_pago = st.checkbox("Pagamento Confirmado (Marque para PAGO / Desmarque para PENDENTE)", value=pago_padrao)
-            
-        botao_atualizar = st.form_submit_button("Salvar Alterações no Banco de Dados")
-        
-        if botao_atualizar:
-            # CORREÇÃO CRÍTICA: Importação local do componente de texto puro do SQLAlchemy
-            from sqlalchemy import text
-            
-            # String SQL limpa
-            query_update = """
-                UPDATE pagamentos_agua 
-                SET pago = :pago, status = :status
-                WHERE nome_agente = :nome AND mes_referencia = :mes;
-            """
-            
-            # Executando o commit envelopado em text() para garantir conformidade com o driver
+    from sqlalchemy import text
+
+    # =========================================================
+    # ABA 1 — CADASTRAR NOVO REGISTRO
+    # =========================================================
+
+    st.subheader("➕ Adicionar Novo Registro")
+
+    with st.form("form_novo_registro"):
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            novo_agente = st.text_input("Nome do Agente")
+
+        with col2:
+            novo_mes = st.text_input("Mês de Referência")
+
+        col3, col4, col5 = st.columns(3)
+
+        with col3:
+            novo_valor = st.number_input(
+                "Valor",
+                min_value=0.0,
+                step=1.0
+            )
+
+        with col4:
+            novo_status = st.selectbox(
+                "Situação",
+                ["Normal", "Férias", "Licença"]
+            )
+
+        with col5:
+            novo_pago = st.checkbox("Pagamento Confirmado")
+
+        botao_salvar_novo = st.form_submit_button("Salvar Novo Registro")
+
+        if botao_salvar_novo:
+
+            # Verifica se já existe registro
+            query_verifica = text("""
+                SELECT COUNT(*) 
+                FROM pagamentos_agua
+                WHERE nome_agente = :nome
+                AND mes_referencia = :mes
+            """)
+
             with conn.session as session:
-                session.execute(text(query_update), {
-                    "pago": status_pago, 
-                    "status": situacao_atual, 
-                    "nome": agente_sel, 
-                    "mes": mes_sel
-                })
-                session.commit()
-                
-            st.success(f"Dados do agente {agente_sel} atualizados com sucesso!")
-            st.author_binder = st.rerun()
+
+                existe = session.execute(
+                    query_verifica,
+                    {
+                        "nome": novo_agente,
+                        "mes": novo_mes
+                    }
+                ).scalar()
+
+                if existe > 0:
+                    st.warning(
+                        "Já existe um registro para esse agente nesse mês."
+                    )
+
+                else:
+
+                    query_insert = text("""
+                        INSERT INTO pagamentos_agua
+                        (
+                            nome_agente,
+                            mes_referencia,
+                            valor,
+                            pago,
+                            status
+                        )
+                        VALUES
+                        (
+                            :nome,
+                            :mes,
+                            :valor,
+                            :pago,
+                            :status
+                        )
+                    """)
+
+                    session.execute(
+                        query_insert,
+                        {
+                            "nome": novo_agente,
+                            "mes": novo_mes,
+                            "valor": novo_valor,
+                            "pago": novo_pago,
+                            "status": novo_status
+                        }
+                    )
+
+                    session.commit()
+
+                    st.success("Novo registro cadastrado com sucesso!")
+                    st.rerun()
+
+    st.divider()
+
+    # =========================================================
+    # ABA 2 — ALTERAR SOMENTE PAGAMENTO
+    # =========================================================
+
+    st.subheader("💰 Atualizar Pagamento")
+
+    if not df_completo.empty:
+
+        col_sel_A, col_sel_B = st.columns(2)
+
+        with col_sel_A:
+            lista_agentes = sorted(
+                df_completo['nome_agente'].unique()
+            )
+
+            agente_sel = st.selectbox(
+                "Escolha o agente:",
+                lista_agentes,
+                key="agente_update"
+            )
+
+        with col_sel_B:
+            lista_meses = sorted(
+                df_completo['mes_referencia'].unique()
+            )
+
+            mes_sel = st.selectbox(
+                "Escolha o mês:",
+                lista_meses,
+                key="mes_update"
+            )
+
+        registro = df_completo[
+            (df_completo['nome_agente'] == agente_sel) &
+            (df_completo['mes_referencia'] == mes_sel)
+        ]
+
+        if not registro.empty:
+
+            pago_atual = bool(registro['pago'].values[0])
+
+            with st.form("form_update_pagamento"):
+
+                novo_pagamento = st.checkbox(
+                    "Pagamento Confirmado",
+                    value=pago_atual
+                )
+
+                botao_update = st.form_submit_button(
+                    "Atualizar Pagamento"
+                )
+
+                if botao_update:
+
+                    query_update = text("""
+                        UPDATE pagamentos_agua
+                        SET pago = :pago
+                        WHERE nome_agente = :nome
+                        AND mes_referencia = :mes
+                    """)
+
+                    with conn.session as session:
+
+                        session.execute(
+                            query_update,
+                            {
+                                "pago": novo_pagamento,
+                                "nome": agente_sel,
+                                "mes": mes_sel
+                            }
+                        )
+
+                        session.commit()
+
+                    st.success(
+                        f"Pagamento de {agente_sel} atualizado!"
+                    )
+
+                    st.rerun()
+
+        else:
+            st.warning("Registro não encontrado.")
