@@ -64,6 +64,10 @@ st.markdown("""
 st.warning("⚠️ **LEMBRE DE FAZER O PIX NO QRCODE PERTO DO GALÃO**")
 st.divider()
 
+st.warning("DIA 10/06 irei adicionar quem ainda está faltanto pagar!")
+st.divider()
+
+
 # 2. Conexão com o Banco de Dados
 conn = st.connection("postgresql", type="sql")
 
