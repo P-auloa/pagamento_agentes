@@ -1,6 +1,26 @@
+import re
 import streamlit as st
 import pandas as pd
 import altair as alt
+
+
+MESES_PT = {
+    "Janeiro": 1, "Fevereiro": 2, "Março": 3, "Abril": 4,
+    "Maio": 5, "Junho": 6, "Julho": 7, "Agosto": 8,
+    "Setembro": 9, "Outubro": 10, "Novembro": 11, "Dezembro": 12,
+}
+
+
+def ordenar_meses(meses):
+    """Ordena lista de meses cronologicamente.
+
+    Suporta formato YYYY-MM (ex: 2024-01) ou nomes em portugues (ex: Janeiro).
+    """
+    def _chave(m):
+        if re.match(r'^\d{4}-\d{2}$', m):
+            return int(m.replace('-', ''))
+        return MESES_PT.get(m, 999)
+    return sorted(meses, key=_chave)
 
 
 def aplicar_estilo_escuro():
@@ -144,6 +164,11 @@ def renderizar_grafico_mensal(df_completo):
     if chart_data.empty:
         st.info("Dados insuficientes para gerar o gráfico mensal.")
         return
+
+    chart_data["_ordem"] = chart_data["mes_referencia"].apply(
+        lambda m: int(m.replace("-", "")) if re.match(r"^\d{4}-\d{2}$", m) else MESES_PT.get(m, 999)
+    )
+    chart_data = chart_data.sort_values("_ordem").drop(columns=["_ordem"])
 
     base = alt.Chart(chart_data).encode(
         x=alt.X("mes_referencia:O", title="Mês", sort=None)

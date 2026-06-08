@@ -9,6 +9,7 @@ from components import (
     renderizar_tabela_pagamentos,
     renderizar_grafico_mensal,
     renderizar_rodape,
+    ordenar_meses,
 )
 from admin import renderizar_admin_area
 
@@ -31,7 +32,7 @@ except Exception as e:
     df_completo = pd.DataFrame()
 
 if not df_completo.empty:
-    meses_disponiveis = sorted(df_completo["mes_referencia"].unique())
+    meses_disponiveis = ordenar_meses(df_completo["mes_referencia"].unique())
 
     st.subheader("Estou devendo esse mês?")
     mes_selecionado = st.selectbox(
