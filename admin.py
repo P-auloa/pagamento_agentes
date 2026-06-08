@@ -59,8 +59,10 @@ def _renderizar_form_cadastro(conn):
         col3, col4, col5 = st.columns(3)
 
         with col3:
-            novo_valor = st.number_input(
-                "Valor (R$)", min_value=0.01, format="%.2f"
+       	    novo_valor = st.selectbox(
+                "Valor (R$)", 
+                options=[0, 10],
+                format_func=lambda x: f"{x}.00"
             )
 
         with col4:
