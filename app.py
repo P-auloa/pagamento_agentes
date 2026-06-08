@@ -7,7 +7,7 @@ from components import (
     renderizar_avisos,
     renderizar_metricas,
     renderizar_tabela_pagamentos,
-    renderizar_grafico_mensal,
+#   renderizar_grafico_mensal,
     renderizar_rodape,
     ordenar_meses,
 )
@@ -45,7 +45,7 @@ if not df_completo.empty:
 
     renderizar_metricas(df_filtrado)
     renderizar_tabela_pagamentos(df_filtrado, mes_selecionado)
-    renderizar_grafico_mensal(df_completo)
+#   renderizar_grafico_mensal(df_completo)
 else:
     st.info("Nenhum registro encontrado no banco de dados.")
 
